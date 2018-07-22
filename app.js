@@ -4,12 +4,18 @@ var containerip = require('os').networkInterfaces().eth0[0].address;
 var containername=require('os').hostname();
 var fs = require('fs');
 var port=args[0];
+var random_colors=["white","black","blue","red","grey","cyan","orange","yellow"]
 
 var APP_VERSION="1.0";
 
 var appdate=+new Date();
 
 var color = process.env.COLOR
+
+if ( !color ) {
+  console.log('Color not defined, we will take a random one');
+  color = random_colors[Math.floor(Math.random()*random_colors.length)];
+}
 
 console.log('APP_VERSION: ' + APP_VERSION + ' COLOR: '+color + ' CONTAINER NAME: ' + containername + ' CONTAINER IP: ' + containerip);
 
