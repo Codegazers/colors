@@ -21,7 +21,13 @@ console.log('APP_VERSION: ' + APP_VERSION + ' COLOR: '+color + ' CONTAINER NAME:
 
 http.createServer(function (req, res) {
   if (req.url == "/favicon.ico"){return;}
-
+  if (req.url == "/text"){
+    result='APP_VERSION: ' + APP_VERSION + '\nCOLOR: '+color + '\nCONTAINER_NAME: ' + containername + '\nCONTAINER_IP: ' + containerip + '\n';
+    console.log(result);
+    res.write(result);
+    res.end();
+    return;
+  }
     fs.readFile('index.html', 'utf-8', function (err, result) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
       result = result.replace('{{APP_VERSION}}', APP_VERSION);
