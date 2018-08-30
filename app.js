@@ -3,6 +3,7 @@ var http=require('http');
 var containerip = require('os').networkInterfaces().eth0[0].address;
 var containername=require('os').hostname();
 var fs = require('fs');
+var app_down_file = "/tmp/down";
 var port=args[0];
 var random_colors=["white","black","blue","red","grey","cyan","orange","yellow"]
 
@@ -21,6 +22,17 @@ console.log('APP_VERSION: ' + APP_VERSION + ' COLOR: '+color + ' CONTAINER NAME:
 
 http.createServer(function (req, res) {
   if (req.url == "/favicon.ico"){return;}
+  if (req.url == "/health"){
+    result='I am OK Thanks, and you?\n';
+    if (fs.existsSync(app_down_file)){
+      result='I am DOWN, thanks for asking\n';
+    }
+
+    console.log(result);
+    res.write(result);
+    res.end();
+    return;
+  }
   if (req.url == "/text"){
     result='APP_VERSION: ' + APP_VERSION + '\nCOLOR: '+color + '\nCONTAINER_NAME: ' + containername + '\nCONTAINER_IP: ' + containerip + '\n';
     console.log(result);
@@ -28,6 +40,7 @@ http.createServer(function (req, res) {
     res.end();
     return;
   }
+
     fs.readFile('index.html', 'utf-8', function (err, result) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
       result = result.replace('{{APP_VERSION}}', APP_VERSION);
