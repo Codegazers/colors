@@ -26,8 +26,12 @@ http.createServer(function (req, res) {
     result='I am OK Thanks, and you?\n';
     if (fs.existsSync(app_down_file)){
       result='I am DOWN, thanks for asking\n';
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=UTF-8',
+      'AppStatus': 'DOWN' });
+    }else{
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=UTF-8',
+      'AppStatus': 'UP' });
     }
-
     console.log(result);
     res.write(result);
     res.end();
