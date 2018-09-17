@@ -37,10 +37,13 @@ http.createServer(function (req, res) {
     res.end();
     return;
   }
+  var headers=JSON.stringify(req.headers);
   if (req.url == "/text"){
     result='APP_VERSION: ' + APP_VERSION + '\nCOLOR: '+color + '\nCONTAINER_NAME: ' + containername + '\nCONTAINER_IP: ' + containerip + '\n';
     console.log(result);
+    console.log(headers);
     res.write(result);
+    res.write(headers);
     res.end();
     return;
   }
