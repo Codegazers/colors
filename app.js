@@ -21,6 +21,7 @@ if ( !color ) {
 console.log('APP_VERSION: ' + APP_VERSION + ' COLOR: '+color + ' CONTAINER NAME: ' + containername + ' CONTAINER IP: ' + containerip);
 
 http.createServer(function (req, res) {
+  clientip=req.connection.remoteAddress
   if (req.url == "/favicon.ico"){return;}
   if (req.url == "/health"){
     result='I am OK Thanks, and you?\n';
@@ -41,9 +42,12 @@ http.createServer(function (req, res) {
   if (req.url == "/text"){
     result='APP_VERSION: ' + APP_VERSION + '\nCOLOR: '+color + '\nCONTAINER_NAME: ' + containername + '\nCONTAINER_IP: ' + containerip + '\n';
     console.log(result);
-    console.log(headers+'\n');
+    console.log('HEADERS' + headers+'\n');
+    console.log('CLIENTIP' + clientip+'\n');
     res.write(result);
-    res.write(headers+'\n');
+    res.write('HEADERS' + headers+'\n');
+    res.write('CLIENTIP' + clientip+'\n');
+    
     res.end();
     return;
   }
