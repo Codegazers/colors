@@ -41,9 +41,9 @@ http.createServer(function (req, res) {
   if (req.url == "/text"){
     result='APP_VERSION: ' + APP_VERSION + '\nCOLOR: '+color + '\nCONTAINER_NAME: ' + containername + '\nCONTAINER_IP: ' + containerip + '\n';
     console.log(result);
-    console.log(headers);
+    console.log(headers+'\n');
     res.write(result);
-    res.write(headers);
+    res.write(headers+'\n');
     res.end();
     return;
   }
