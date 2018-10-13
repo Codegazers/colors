@@ -40,7 +40,11 @@ http.createServer(function (req, res) {
   }
   var headers=JSON.stringify(req.headers);
   if (req.url == "/text"){
-    result='APP_VERSION: ' + APP_VERSION + '\nCOLOR: '+color + '\nCONTAINER_NAME: ' + containername + '\nCONTAINER_IP: ' + containerip + '\n';
+    result='APP_VERSION: ' + APP_VERSION + 
+      '\nCOLOR: ' + color + 
+      '\nCONTAINER_NAME: ' + containername + 
+      '\nCONTAINER_IP: ' + containerip + 
+      '\nCLIENTIP' + clientip+'\n';
     console.log(result);
     console.log('HEADERS' + headers+'\n');
     console.log('CLIENTIP' + clientip+'\n');
@@ -51,7 +55,12 @@ http.createServer(function (req, res) {
     res.end();
     return;
   }
-
+  if (req.url == "/headers"){
+    console.log('HEADERS' + headers+'\n');
+    res.write('HEADERS' + headers+'\n');   
+    res.end();
+    return;
+  }
     fs.readFile('index.html', 'utf-8', function (err, result) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
       result = result.replace('{{APP_VERSION}}', APP_VERSION);
