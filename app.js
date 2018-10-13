@@ -1,7 +1,27 @@
 var args = process.argv.slice(2);
 var http=require('http');
-var containerip = require('os').networkInterfaces().eth0[0].address;
+
+var containerarch=process.platform;
+
+//var containerip = require('os').networkInterfaces().eth0[0].address;
+
+var ifaces = require('os').networkInterfaces();
+
+var containerip = "";
+
+Object.keys(ifaces).forEach(function (ifname) {
+  var alias = 0;
+  ifaces[ifname].forEach(function (iface) {
+    if ('IPv4' !== iface.family || iface.internal !== false) {
+      return;
+    }
+    containerip=containerip+" "+iface.address;
+    ++alias;
+  });
+});
+
 var containername=require('os').hostname();
+
 var fs = require('fs');
 var app_down_file = "/tmp/down";
 var port=args[0];
@@ -18,10 +38,16 @@ if ( !color ) {
   color = random_colors[Math.floor(Math.random()*random_colors.length)];
 }
 
-console.log('APP_VERSION: ' + APP_VERSION + ' COLOR: '+color + ' CONTAINER NAME: ' + containername + ' CONTAINER IP: ' + containerip);
+console.log('APP_VERSION: ' + APP_VERSION + ' COLOR: '+color + ' CONTAINER NAME: ' + containername + ' CONTAINER IP: ' + containerip + ' CONTAINER ARCH: ' + containerarch);
 
 http.createServer(function (req, res) {
-  clientip=req.connection.remoteAddress
+  if (req.headers['x-forwarded-for']) {
+    clientip = req.headers['x-forwarded-for'].split(",")[0];
+  } else if (req.connection && req.connection.remoteAddress) {
+    clientip = req.connection.remoteAddress;
+  } else {
+    clientip = req.ip;
+  }
   if (req.url == "/favicon.ico"){return;}
   if (req.url == "/health"){
     result='I am OK Thanks, and you?\n';
@@ -44,14 +70,11 @@ http.createServer(function (req, res) {
       '\nCOLOR: ' + color + 
       '\nCONTAINER_NAME: ' + containername + 
       '\nCONTAINER_IP: ' + containerip + 
-      '\nCLIENTIP' + clientip+'\n';
+      '\nCLIENT_IP' + clientip +
+      '\nCONTAINER_ARCH: ' + containerarch+
+      '\n';
     console.log(result);
-    console.log('HEADERS' + headers+'\n');
-    console.log('CLIENTIP' + clientip+'\n');
-    res.write(result);
-    res.write('HEADERS' + headers+'\n');
-    res.write('CLIENTIP' + clientip+'\n');
-    
+    res.write(result); 
     res.end();
     return;
   }
