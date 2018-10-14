@@ -1,0 +1,47 @@
+version: "3.3"
+
+services:
+  red:
+    image: codegazers/colors:1.12
+    environment:
+      - COLOR=red
+    deploy:
+      replicas: 1
+      labels:
+        com.docker.lb.hosts: red.colors.labs.local
+        com.docker.lb.network: colors
+        com.docker.lb.port: 3000
+    networks:
+      - colors
+
+  green:
+    image: codegazers/colors:1.12
+    environment:
+      - COLOR=green
+    deploy:
+      replicas: 1
+      labels:
+        com.docker.lb.hosts: green.colors.labs.local
+        com.docker.lb.network: colors
+        com.docker.lb.port: 3000
+    networks:
+      - colors
+
+  black:
+    image: codegazers/colors:1.12
+    environment:
+      - COLOR=black
+    deploy:
+      replicas: 1
+      labels:
+        com.docker.lb.hosts: black.colors.labs.local
+        com.docker.lb.network: colors
+        com.docker.lb.port: 3000
+    networks:
+      - colors
+
+networks:
+  colors:
+    driver: overlay
+
+
