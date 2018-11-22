@@ -70,7 +70,7 @@ http.createServer(function (req, res) {
       '\nCOLOR: ' + color + 
       '\nCONTAINER_NAME: ' + containername + 
       '\nCONTAINER_IP: ' + containerip + 
-      '\nCLIENT_IP' + clientip +
+      '\nCLIENT_IP: ' + clientip +
       '\nCONTAINER_ARCH: ' + containerarch+
       '\n';
     console.log(result);
