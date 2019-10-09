@@ -50,7 +50,7 @@ http.createServer(function (req, res) {
   }
   if (req.url == "/favicon.ico"){return;}
   if (req.url == "/health"){
-    result='I am OK Thanks, and you?\n';
+    result='I am OK Thanks for asking.\n';
     if (fs.existsSync(app_down_file)){
       result='I am DOWN, thanks for asking\n';
       res.writeHead(503, { 'Content-Type': 'text/plain; charset=UTF-8',
