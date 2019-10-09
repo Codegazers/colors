@@ -50,9 +50,9 @@ http.createServer(function (req, res) {
   }
   if (req.url == "/favicon.ico"){return;}
   if (req.url == "/health"){
-    result='I am OK Thanks for asking.\n';
+    result='I am OK thanks for asking.\n';
     if (fs.existsSync(app_down_file)){
-      result='I am DOWN, thanks for asking\n';
+      result='I am DOWN.\n';
       res.writeHead(503, { 'Content-Type': 'text/plain; charset=UTF-8',
       'AppStatus': 'DOWN' });
     }else{
@@ -88,6 +88,7 @@ http.createServer(function (req, res) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
       result = result.replace('{{APP_VERSION}}', APP_VERSION);
       result = result.replace('{{CONTAINER_IP}}', containerip);
+      result = result.replace('{{CLIENT_IP}}', client);
       result = result.replace('{{CONTAINER_NAME}}', containername);
       result = result.replace(new RegExp('{{COLOR}}', 'g'), color);
       console.log(result);
