@@ -30,7 +30,7 @@ var port=args[0];
 
 var random_colors=["white","black","blue","red","grey","cyan","orange","yellow"]
 
-var appversion="1.0";
+var appversion="1.15";
 
 var appdate=+new Date();
 
