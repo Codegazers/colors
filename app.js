@@ -23,22 +23,47 @@ Object.keys(ifaces).forEach(function (ifname) {
 var containername=require('os').hostname();
 
 var fs = require('fs');
+
 var app_down_file = "/tmp/down";
+
 var port=args[0];
+
 var random_colors=["white","black","blue","red","grey","cyan","orange","yellow"]
 
-var APP_VERSION="1.0";
+var appversion="1.0";
 
 var appdate=+new Date();
 
 var color = process.env.COLOR
+
+var data_path = "/data";
 
 if ( !color ) {
   console.log('Color not defined, we will take a random one');
   color = random_colors[Math.floor(Math.random()*random_colors.length)];
 }
 
-console.log('APP_VERSION: ' + APP_VERSION + ' COLOR: '+color + ' CONTAINER NAME: ' + containername + ' CONTAINER IP: ' + containerip + ' CONTAINER ARCH: ' + containerarch);
+console.log('APP_VERSION: ' + appversion + ' COLOR: '+color + ' CONTAINER_NAME: ' + containername + ' CONTAINER_IP: ' + containerip + ' CONTAINER_ARCH: ' + containerarch);
+
+if (fs.existsSync(data_path)) {
+  
+  data_string='APP_VERSION: ' + appversion + 
+  '\nCOLOR: ' + color + 
+  '\nCONTAINER_NAME: ' + containername + 
+  '\nCONTAINER_IP: ' + containerip + 
+  '\nCONTAINER_ARCH: ' + containerarch+
+  '\n';
+
+  fs.writeFile(data_path + "/" + containername, data_string, function(err) {
+    if(err) {
+        return console.log(err);
+    }
+    console.log("Data file " + data_path + "/" + containername + " was created.");
+  }); 
+
+}else{
+  console.log("Data path " + data_path + " does not exist, no application fingerprint will be created.");
+}
 
 http.createServer(function (req, res) {
   if (req.headers['x-forwarded-for']) {
@@ -66,7 +91,7 @@ http.createServer(function (req, res) {
   }
   var headers=JSON.stringify(req.headers);
   if (req.url == "/text"){
-    result='APP_VERSION: ' + APP_VERSION + 
+    result='APP_VERSION: ' + appversion + 
       '\nCOLOR: ' + color + 
       '\nCONTAINER_NAME: ' + containername + 
       '\nCONTAINER_IP: ' + containerip + 
@@ -84,9 +109,10 @@ http.createServer(function (req, res) {
     res.end();
     return;
   }
-    fs.readFile('index.html', 'utf-8', function (err, result) {
+  
+  fs.readFile('index.html', 'utf-8', function (err, result) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
-      result = result.replace('{{APP_VERSION}}', APP_VERSION);
+      result = result.replace('{{APP_VERSION}}', appversion);
       result = result.replace('{{CONTAINER_IP}}', containerip);
       result = result.replace('{{CLIENT_IP}}', client);
       result = result.replace('{{CONTAINER_NAME}}', containername);
@@ -97,8 +123,8 @@ http.createServer(function (req, res) {
       res.write('</body>\n');
       res.write('</html>\n');
       res.end();
-    });
-
+  });
+  
 
 }).listen(port);
 
