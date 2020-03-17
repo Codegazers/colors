@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "ip.js": "latest",
-    "fs": "latest"
+    "fs": "latest",
+    "redis": "latest"
   }
 
 }

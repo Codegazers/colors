@@ -30,7 +30,7 @@ var port=args[0];
 
 var random_colors=["white","black","blue","red","grey","cyan","orange","yellow"]
 
-var appversion="1.15";
+var appversion="1.20";
 
 var appdate=+new Date();
 
@@ -38,12 +38,35 @@ var color = process.env.COLOR
 
 var data_path = "/data";
 
+var redis_enabled = process.env.REDIS_ENABLED
+
+
 if ( !color ) {
   console.log('Color not defined, we will take a random one');
   color = random_colors[Math.floor(Math.random()*random_colors.length)];
 }
 
 console.log('APP_VERSION: ' + appversion + ' COLOR: '+color + ' CONTAINER_NAME: ' + containername + ' CONTAINER_IP: ' + containerip + ' CONTAINER_ARCH: ' + containerarch);
+
+if ( !redis_enabled ) {
+  // Redis connection
+
+  var redis = require('redis');
+
+  var redis_port = process.env.REDIS_PORT || 6379;  
+  var redis_host = process.env.REDIS_HOST || 'redis';
+
+  var redis_enabled = process.env.REDIS_ENABLED;
+
+  var client = redis.createClient(redis_port, redis_host);
+  client.on('connect', function() {
+    console.log('connected');
+    client.set(containerip, color, redis.print);
+    client.expire(containerip, 60);
+  });
+
+}
+
 
 if (fs.existsSync(data_path)) {
   
