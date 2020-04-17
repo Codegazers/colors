@@ -48,7 +48,7 @@ if ( !color ) {
 
 console.log('APP_VERSION: ' + appversion + ' COLOR: '+color + ' CONTAINER_NAME: ' + containername + ' CONTAINER_IP: ' + containerip + ' CONTAINER_ARCH: ' + containerarch);
 
-if ( !redis_enabled ) {
+if ( redis_enabled ) {
   // Redis connection
 
   var redis = require('redis');
