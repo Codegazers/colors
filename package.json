@@ -11,6 +11,7 @@
   "dependencies": {
     "ip.js": "latest",
     "fs": "latest",
-    "redis": "latest"
+    "redis": "latest",
+    "moment": "latest"
   }
 }

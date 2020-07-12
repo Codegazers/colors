@@ -1,6 +1,7 @@
 var args = process.argv.slice(2);
 var http=require('http');
 
+var moment=require('moment');
 var containerarch=process.platform;
 
 //var containerip = require('os').networkInterfaces().eth0[0].address;
@@ -114,12 +115,15 @@ http.createServer(function (req, res) {
   }
   var headers=JSON.stringify(req.headers);
   if (req.url == "/text"){
+    //var datetime = Date.now()
+    var datetime =moment().format('MMMM Do YYYY, h:mm:ss a');
     result='APP_VERSION: ' + appversion + 
       '\nCOLOR: ' + color + 
       '\nCONTAINER_NAME: ' + containername + 
       '\nCONTAINER_IP: ' + containerip + 
       '\nCLIENT_IP: ' + clientip +
       '\nCONTAINER_ARCH: ' + containerarch+
+      '\nDATETIME: ' + datetime+
       '\n';
     console.log(result);
     res.write(result); 
@@ -134,7 +138,10 @@ http.createServer(function (req, res) {
   }
   
   fs.readFile('index.html', 'utf-8', function (err, result) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
+    var datetime =moment().format('MMMM Do YYYY, h:mm:ss a');
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
+      result = result.replace('{{DATETIME}}', datetime);
       result = result.replace('{{APP_VERSION}}', appversion);
       result = result.replace('{{CONTAINER_IP}}', containerip);
       result = result.replace('{{CLIENT_IP}}', client);
