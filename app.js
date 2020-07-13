@@ -37,6 +37,8 @@ var appdate=+new Date();
 
 var color = process.env.COLOR
 
+var hostname = process.env.HOSTNAME
+
 var data_path = "/data";
 
 var redis_enabled = process.env.REDIS_ENABLED
@@ -47,14 +49,19 @@ if ( !color ) {
   color = random_colors[Math.floor(Math.random()*random_colors.length)];
 }
 
-console.log('APP_VERSION: ' + appversion + ' COLOR: '+color + ' CONTAINER_NAME: ' + containername + ' CONTAINER_IP: ' + containerip + ' CONTAINER_ARCH: ' + containerarch);
+console.log('APP_VERSION: ' + appversion +
+' COLOR: '+color +
+' CONTAINER_NAME: ' + containername +
+' CONTAINER_IP: ' + containerip +
+' CONTAINER_ARCH: ' + containerarch +
+' HOSTNAME: ' + hostname);
 
 if ( redis_enabled ) {
   // Redis connection
 
   var redis = require('redis');
 
-  var redis_port = process.env.REDIS_PORT || 6379;  
+  var redis_port = process.env.REDIS_PORT || 6379;
   var redis_host = process.env.REDIS_HOST || 'redis';
 
   var redis_enabled = process.env.REDIS_ENABLED;
@@ -70,12 +77,13 @@ if ( redis_enabled ) {
 
 
 if (fs.existsSync(data_path)) {
-  
-  data_string='APP_VERSION: ' + appversion + 
-  '\nCOLOR: ' + color + 
-  '\nCONTAINER_NAME: ' + containername + 
-  '\nCONTAINER_IP: ' + containerip + 
-  '\nCONTAINER_ARCH: ' + containerarch+
+
+  data_string='APP_VERSION: ' + appversion +
+  '\nCOLOR: ' + color +
+  '\nCONTAINER_NAME: ' + containername +
+  '\nCONTAINER_IP: ' + containerip +
+  '\nCONTAINER_ARCH: ' + containerarch +
+  '\HOSTNAME (from environment): ' + hostname+
   '\n';
 
   fs.writeFile(data_path + "/" + containername, data_string, function(err) {
@@ -83,7 +91,7 @@ if (fs.existsSync(data_path)) {
         return console.log(err);
     }
     console.log("Data file " + data_path + "/" + containername + " was created.");
-  }); 
+  });
 
 }else{
   console.log("Data path " + data_path + " does not exist, no application fingerprint will be created.");
@@ -97,6 +105,16 @@ http.createServer(function (req, res) {
   } else {
     clientip = req.ip;
   }
+
+  var strheaders = "";
+  headers_map = req.headers;
+  //console.log('HEADERS:');
+  Object.keys(headers_map).forEach(function(header_key){
+    //console.log(header_key + ': "' + headers_map[header_key] + '"');
+    strheaders = strheaders + '\t- ' + header_key + ': "' + headers_map[header_key] + '"\n';
+   });
+
+
   if (req.url == "/favicon.ico"){return;}
   if (req.url == "/health"){
     result='I am OK thanks for asking.\n';
@@ -113,30 +131,31 @@ http.createServer(function (req, res) {
     res.end();
     return;
   }
-  var headers=JSON.stringify(req.headers);
+  //var headers=JSON.stringify(req.headers);
   if (req.url == "/text"){
-    //var datetime = Date.now()
     var datetime =moment().format('MMMM Do YYYY, h:mm:ss a');
-    result='APP_VERSION: ' + appversion + 
-      '\nCOLOR: ' + color + 
-      '\nCONTAINER_NAME: ' + containername + 
-      '\nCONTAINER_IP: ' + containerip + 
+    result='APP_VERSION: ' + appversion +
+      '\nCOLOR: ' + color +
+      '\nCONTAINER_NAME: ' + containername +
+      '\nCONTAINER_IP: ' + containerip +
       '\nCLIENT_IP: ' + clientip +
       '\nCONTAINER_ARCH: ' + containerarch+
+      '\nHOSTNAME (from environment): ' + hostname+
       '\nDATETIME: ' + datetime+
+      '\nHEADERS: \n' + strheaders+
       '\n';
     console.log(result);
-    res.write(result); 
+    res.write(result);
     res.end();
     return;
   }
   if (req.url == "/headers"){
-    console.log('HEADERS' + headers+'\n');
-    res.write('HEADERS' + headers+'\n');   
+    res.write('HEADERS:\n');
+    res.write(strheaders);
     res.end();
     return;
   }
-  
+
   fs.readFile('index.html', 'utf-8', function (err, result) {
     var datetime =moment().format('MMMM Do YYYY, h:mm:ss a');
 
@@ -146,6 +165,10 @@ http.createServer(function (req, res) {
       result = result.replace('{{CONTAINER_IP}}', containerip);
       result = result.replace('{{CLIENT_IP}}', client);
       result = result.replace('{{CONTAINER_NAME}}', containername);
+      result = result.replace('{{CONTAINER_ARCH}}', containerarch);
+      result = result.replace('{{HOSTNAME}}', hostname);
+      strheaders = strheaders.replace(/\t- /g, '<p>');
+      result = result.replace('{{HEADERS}}', strheaders);
       result = result.replace(new RegExp('{{COLOR}}', 'g'), color);
       console.log(result);
       res.write(result);
@@ -154,7 +177,7 @@ http.createServer(function (req, res) {
       res.write('</html>\n');
       res.end();
   });
-  
+
 
 }).listen(port);
 
