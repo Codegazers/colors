@@ -1,3 +1,11 @@
+## Options for better usage
+
+- Environment variables:
+  * COLOR - Defines color
+  * HOSTNAME - Defines an alternate hostname
+  * APPROOT - Defines application root url (for example APPROOT=/colors will construct /colors/text for example)
+  * REDIS_ENABLED - Currently in construction
+
 
 ## Building
 
@@ -50,6 +58,10 @@ I am DOWN, thanks for asking
 * Connection #0 to host 0.0.0.0 left intact
 ~~~
 
+~~~
+docker run -ti -e COLOR=white  \
+-p 8080:3000  codegazers/colors:1.19
+~~~
 
 ## Docker EE Interlock Demo
 ~~~
