@@ -21,6 +21,8 @@ Object.keys(ifaces).forEach(function (ifname) {
   });
 });
 
+var rootpath = "/";
+
 var containername=require('os').hostname();
 
 var fs = require('fs');
@@ -31,7 +33,7 @@ var port=args[0];
 
 var random_colors=["white","black","blue","red","grey","cyan","orange","yellow"]
 
-var appversion="1.20";
+var appversion="1.21";
 
 var appdate=+new Date();
 
@@ -114,6 +116,13 @@ http.createServer(function (req, res) {
     strheaders = strheaders + '\t- ' + header_key + ': "' + headers_map[header_key] + '"\n';
    });
 
+
+  if (req.url == "/colors"){
+    res.write('COLORS ROOT\n');
+    res.write(strheaders);
+    res.end();
+    return;
+    }
 
   if (req.url == "/favicon.ico"){return;}
   if (req.url == "/health"){
