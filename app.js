@@ -10,6 +10,8 @@ var ifaces = require('os').networkInterfaces();
 
 var containerip = "";
 
+
+
 Object.keys(ifaces).forEach(function (ifname) {
   var alias = 0;
   ifaces[ifname].forEach(function (iface) {
@@ -45,6 +47,12 @@ var data_path = "/data";
 
 var redis_enabled = process.env.REDIS_ENABLED
 
+var approot = process.env.APPROOT;
+
+if ( !approot ) {
+  console.log('App Root not defined, we will take / as Root App Path');
+  approot = "";
+}
 
 if ( !color ) {
   console.log('Color not defined, we will take a random one');
@@ -100,6 +108,8 @@ if (fs.existsSync(data_path)) {
 }
 
 http.createServer(function (req, res) {
+  console.log("URL: "+ req.url);
+
   if (req.headers['x-forwarded-for']) {
     clientip = req.headers['x-forwarded-for'].split(",")[0];
   } else if (req.connection && req.connection.remoteAddress) {
@@ -124,8 +134,8 @@ http.createServer(function (req, res) {
     return;
     }
 
-  if (req.url == "/favicon.ico"){return;}
-  if (req.url == "/health"){
+  if (req.url == approot + "/favicon.ico"){return;}
+  if (req.url == approot + "/health"){
     result='I am OK thanks for asking.\n';
     if (fs.existsSync(app_down_file)){
       result='I am DOWN.\n';
@@ -141,7 +151,7 @@ http.createServer(function (req, res) {
     return;
   }
   //var headers=JSON.stringify(req.headers);
-  if (req.url == "/text"){
+  if (req.url == approot + "/text"){
     var datetime =moment().format('MMMM Do YYYY, h:mm:ss a');
     result='APP_VERSION: ' + appversion +
       '\nCOLOR: ' + color +
@@ -158,35 +168,51 @@ http.createServer(function (req, res) {
     res.end();
     return;
   }
-  if (req.url == "/headers"){
+  if (req.url == approot + "/headers"){
     res.write('HEADERS:\n');
     res.write(strheaders);
     res.end();
     return;
   }
 
-  fs.readFile('index.html', 'utf-8', function (err, result) {
-    var datetime =moment().format('MMMM Do YYYY, h:mm:ss a');
+  if (req.url == approot + "/headers"){
+    res.write('HEADERS:\n');
+    res.write(strheaders);
+    res.end();
+    return;
+  }
+  
+  var match_approot = new RegExp("^"+ approot + "($|\/$)");
 
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
-      result = result.replace('{{DATETIME}}', datetime);
-      result = result.replace('{{APP_VERSION}}', appversion);
-      result = result.replace('{{CONTAINER_IP}}', containerip);
-      result = result.replace('{{CLIENT_IP}}', client);
-      result = result.replace('{{CONTAINER_NAME}}', containername);
-      result = result.replace('{{CONTAINER_ARCH}}', containerarch);
-      result = result.replace('{{HOSTNAME}}', hostname);
-      strheaders = strheaders.replace(/\t- /g, '<p>');
-      result = result.replace('{{HEADERS}}', strheaders);
-      result = result.replace(new RegExp('{{COLOR}}', 'g'), color);
-      console.log(result);
-      res.write(result);
-      // Closing response
-      res.write('</body>\n');
-      res.write('</html>\n');
-      res.end();
-  });
 
+  if ( match_approot.test(req.url)){
+  
+    fs.readFile('index.html', 'utf-8', function (err, result) {
+      var datetime =moment().format('MMMM Do YYYY, h:mm:ss a');
+
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
+        result = result.replace('{{DATETIME}}', datetime);
+        result = result.replace('{{APP_VERSION}}', appversion);
+        result = result.replace('{{CONTAINER_IP}}', containerip);
+        result = result.replace('{{CLIENT_IP}}', client);
+        result = result.replace('{{CONTAINER_NAME}}', containername);
+        result = result.replace('{{CONTAINER_ARCH}}', containerarch);
+        result = result.replace('{{HOSTNAME}}', hostname);
+        strheaders = strheaders.replace(/\t- /g, '<p>');
+        result = result.replace('{{HEADERS}}', strheaders);
+        result = result.replace(new RegExp('{{COLOR}}', 'g'), color);
+        console.log(result);
+        res.write(result);
+        // Closing response
+        res.write('</body>\n');
+        res.write('</html>\n');
+        res.end();
+    });
+  }else{
+    res.write('URL '+ req.url +' NOT FOUND\n');
+    res.end();
+    return;
+  }
 
 }).listen(port);
 
@@ -197,5 +223,5 @@ http.createServer(function (req, res) {
 
 console.log('[' + appdate + ']  ' + containerip+' - '+containername);
 
-console.log('Server running at http://'+containerip+':'+port+'/');
+console.log('Server running at http://'+containerip+':'+port+ approot+ '/');
 
